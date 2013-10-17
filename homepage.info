@@ -1,0 +1,4 @@
+name = homepage
+description = Homepage turned into a module for safe PHP
+core = 7.x
+version = 7.x-0.1-dev
