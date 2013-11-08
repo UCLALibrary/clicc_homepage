@@ -51,7 +51,7 @@ function clicc_homepage_block_contents($delta) {
 	// Static Content
 	$html .= '
 		<div id="home-left">
-			<img src="/drupal/sites/default/files/Left-Home.jpg" align="center">
+			<img src="/sites/default/files/Left-Home.jpg" align="center">
 			<h2>CLICC Lab/Commons</h2>
 			<h6>145 Powell Library Building</h6>
 			<p>The College Library Instructional Computing Commons (CLICC) offers students 100 workstations, instructional software, printers and helpful staff.</p>
@@ -119,7 +119,7 @@ function clicc_homepage_block_contents($delta) {
 	// Static content
 	$html .= '	
 		<div id="home-right">
-			<img src="/drupal/sites/default/files/Right-Home.jpg" align="center">
+			<img src="/sites/default/files/Right-Home.jpg" align="center">
 			<h2>Laptop Lending</h2>
 			<h6>Throughout the UCLA Libraries</h6>
 			<p>Currently enrolled UCLA Students, currently employed UCLA Faculty and staff members with a BruinCard or photo ID may check out a laptop using their UCLA Logon and password.</p>
@@ -162,7 +162,7 @@ function clicc_homepage_block_contents($delta) {
 	// Static content
 	$html .= '
 		<div id="home-center">
-			<img src="/drupal/sites/default/files/Center-Home.jpg" align="center">
+			<img src="/sites/default/files/Center-Home.jpg" align="center">
 			<h2>Classrooms</h2>
 			<h6>Third Floor of Powell Library Building</h6>
 			<p>The CLICC Classrooms are three electronic learning spaces with desktop stations and laptops, as well as other instructional equipment and services.</p>
