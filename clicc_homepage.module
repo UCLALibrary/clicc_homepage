@@ -106,7 +106,7 @@ function clicc_homepage_block_contents($delta) {
 			<div style="background-color:#ECF5FD;padding:10px;">
 				<ul>
 					<li><a href="group-study-spaces">Group Study Spaces</a></li>
-					<li><a href="overview-and-use">How to Log In</a></li>
+					<li><a href="overview-use">How to Log In</a></li>
 					<li><a href="printers">How to Print</a></li>
 				</ul>
 			</div>
