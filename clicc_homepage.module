@@ -149,6 +149,7 @@ function clicc_homepage_block_contents($delta) {
 			<div style="background-color:#ECF5FD;padding:10px;">
 				<ul>
 					<li><a href="borrow-laptop">Check Out a Laptop</a></li>
+					<li><a href="http://www.library.ucla.edu/clicc/known-issues">Known Issues</a></li>
 					<li><a href="borrow-laptop">Renew a Laptop</a></li>
 					<li><a href="borrow-laptop">Print from a Laptop</a></li>
 				</ul>
@@ -310,7 +311,7 @@ function clicc_homepage_block_contents($delta) {
 			<p>
 			<div style="background-color:#ECF5FD;padding:10px;">
 				<ul>
-					<li><a href="http://shortcut.clicc.ucla.edu">Software Shortcut</a></li>
+					<li><a href="https://sw-shortcut.library.ucla.edu/">Software Shortcut</a></li>
 					<li><a href="hours-and-help">Hours and Help</a></li>
 					<li><a href="instructional-technology">Instructional Technology</a></li>
 				</ul>
