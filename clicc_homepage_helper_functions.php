@@ -16,121 +16,141 @@ function get_laptops_array() {
 // These functions are used for getting the availability schedules for 
 
 date_default_timezone_set('America/Los_Angeles');
-function checkOpenCloseTime($library){
+function checkOpenCloseTime($library) {
 	$libID = 0;
 	if ($library == "YRL")
 		$libID = 48;
 	if ($library == "Powell")
 		$libID = 54;
-	if ($library == "Classrooms")
+	if ($library == "Classrooms") // Monday-Thursday 8am-11pm. Friday 8am-6pm. Sat/Sun closed.
 		$libID = 55;
-	$closeOpenArr = array(
+	$openCloseArr = array(
 		'open' => 0,
 		'close' => 0,);
-	$hoursArr = json_decode(file_get_contents('http://webservices.library.ucla.edu/libservices/hours/unit/' . $libID), true);
-	switch (date('N')){
-		case 7:
-			if($hoursArr['unitSchedule']['sunClosed'] == "true"){
-				$closeOpenArr['open'] =  0;
-				$closeOpenArr['close'] =  0;
-			}
-			elseif(!empty($hoursArr['unitSchedule']['sunCloses']) && !empty($hoursArr['unitSchedule']['sunOpens'])){
-				$opens = strtotime($hoursArr['unitSchedule']['sunOpens']);
-				$closes= strtotime($hoursArr['unitSchedule']['sunCloses']);
-				$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
-				$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
-				$opensInt = (int)substr($opensString,0,2);
-				if(substr($opensString, 3,5) == "PM")
-					$opensInt = $opensInt + 12;
-				$closesInt = (int)substr($closesString,0,2);
-				if(substr($closesString, 3,5) == "PM")
-					$closesInt = $closesInt + 12;
-				$closeOpenArr['open'] = $opensInt;
-				$closeOpenArr['close'] = $closesInt;
-			}
-			break;
-		case 6:
-			if($hoursArr['unitSchedule']['satClosed'] == "true"){
-				$closeOpenArr['open'] =  0;
-				$closeOpenArr['close'] =  0;
-			}
-			elseif(!empty($hoursArr['unitSchedule']['satCloses']) && !empty($hoursArr['unitSchedule']['satOpens'])){
-				$opens = strtotime($hoursArr['unitSchedule']['satOpens']);
-				$closes= strtotime($hoursArr['unitSchedule']['satCloses']);
-				$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
-				$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
-				$opensInt = (int)substr($opensString,0,2);
-				if(substr($opensString, 3,5) == "PM")
-					$opensInt = $opensInt + 12;
-				$closesInt = (int)substr($closesString,0,2);
-				if(substr($closesString, 3,5) == "PM")
-					$closesInt = $closesInt + 12;
-				$closeOpenArr['open'] = $opensInt;
-				$closeOpenArr['close'] = $closesInt;
-			}
-			break;
-		case 5:
-			if($hoursArr['unitSchedule']['friClosed'] == "true"){
-				$closeOpenArr['open'] =  0;
-				$closeOpenArr['close'] =  0;
-			}
-			elseif(!empty($hoursArr['unitSchedule']['friCloses']) && !empty($hoursArr['unitSchedule']['friOpens'])){
-				$opens = date($hoursArr['unitSchedule']['friOpens']);
-				$closes= date($hoursArr['unitSchedule']['friCloses']);
-				$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
-				$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
-				$opensInt = (int)substr($opensString,0,2);
-				if(substr($opensString, 3,5) == "PM")
-					$opensInt = $opensInt + 12;
-				$closesInt = (int)substr($closesString,0,2);
-				if(substr($closesString, 3,5) == "PM")
-					$closesInt = $closesInt + 12;
-				$closeOpenArr['open'] = $opensInt;
-				$closeOpenArr['close'] = $closesInt;
-			}
-			break;
-		case 4:
-		case 3:
-		case 2:
-		case 1:
-			if($hoursArr['unitSchedule']['monThursClosed'] == "true"){
-				$closeOpenArr['open'] =  0;
-				$closeOpenArr['close'] =  0;
-			}
-			elseif(!empty($hoursArr['unitSchedule']['monThursCloses']) && !empty($hoursArr['unitSchedule']['monThursOpens'])){
-				$opens = strtotime($hoursArr['unitSchedule']['monThursOpens']);
-				$closes= strtotime($hoursArr['unitSchedule']['monThursCloses']);
-				$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
-				$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
-				$opensInt = (int)substr($opensString,0,2);
-				if(substr($opensString, 3,5) == "PM")
-					$opensInt = $opensInt + 12;
-				$closesInt = (int)substr($closesString,0,2);
-				if(substr($closesString, 3,5) == "PM")
-					$closesInt = $closesInt + 12;
-				$closeOpenArr['open'] = $opensInt;
-				$closeOpenArr['close'] = $closesInt;
-			}
-			break;
-			
+	// Special case for classroom only: webservice data is incorrect
+	if ($library == "Classrooms") {
+		$now = date('l');
+		if ($now == 'Saturday' || $now == 'Sunday') {
+			$openCloseArr['open'] = 0;
+			$openCloseArr['close'] = 0;
+		}
+		else if ($now == 'Friday') {
+			$openCloseArr['open'] = 8;
+			$openCloseArr['close'] = 18;
+		}
+		else { // Monday-Thursday
+			$openCloseArr['open'] = 8;
+			$openCloseArr['close'] = 23;
+		}
+		return $openCloseArr;
 	}
-		
-	return $closeOpenArr;
+	else {
+		$hoursArr = json_decode(file_get_contents('http://webservices.library.ucla.edu/libservices/hours/unit/' . $libID), true);
+		switch (date('N')){
+			case 7:
+				if($hoursArr['unitSchedule']['sunClosed'] == "true"){
+					$openCloseArr['open'] =  0;
+					$openCloseArr['close'] =  0;
+				}
+				elseif(!empty($hoursArr['unitSchedule']['sunCloses']) && !empty($hoursArr['unitSchedule']['sunOpens'])){
+					$opens = strtotime($hoursArr['unitSchedule']['sunOpens']);
+					$closes= strtotime($hoursArr['unitSchedule']['sunCloses']);
+					$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
+					$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
+					$opensInt = (int)substr($opensString,0,2);
+					if(substr($opensString, 3,5) == "PM")
+						$opensInt = $opensInt + 12;
+					$closesInt = (int)substr($closesString,0,2);
+					if(substr($closesString, 3,5) == "PM")
+						$closesInt = $closesInt + 12;
+					$openCloseArr['open'] = $opensInt;
+					$openCloseArr['close'] = $closesInt;
+				}
+				break;
+			case 6:
+				if($hoursArr['unitSchedule']['satClosed'] == "true"){
+					$openCloseArr['open'] =  0;
+					$openCloseArr['close'] =  0;
+				}
+				else if (!empty($hoursArr['unitSchedule']['satOpens']) && !empty($hoursArr['unitSchedule']['satCloses'])){
+					$opens = strtotime($hoursArr['unitSchedule']['satOpens']);
+					$closes= strtotime($hoursArr['unitSchedule']['satCloses']);
+					$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
+					$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
+					$opensInt = (int)substr($opensString,0,2);
+					if(substr($opensString, 3,5) == "PM")
+						$opensInt = $opensInt + 12;
+					$closesInt = (int)substr($closesString,0,2);
+					if(substr($closesString, 3,5) == "PM")
+						$closesInt = $closesInt + 12;
+					$openCloseArr['open'] = $opensInt;
+					$openCloseArr['close'] = $closesInt;
+				}
+				break;
+			case 5:
+				if($hoursArr['unitSchedule']['friClosed'] == "true"){
+					$openCloseArr['open'] =  0;
+					$openCloseArr['close'] =  0;
+				}
+				else if (!empty($hoursArr['unitSchedule']['friOpens']) && !empty($hoursArr['unitSchedule']['friCloses'])) {
+					$opens = date($hoursArr['unitSchedule']['friOpens']);
+					$closes = date($hoursArr['unitSchedule']['friCloses']);
+					$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
+					$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
+					$opensInt = (int)substr($opensString,0,2);
+					if(substr($opensString, 3,5) == "PM")
+						$opensInt = $opensInt + 12;
+					$closesInt = (int)substr($closesString,0,2);
+					if(substr($closesString, 3,5) == "PM")
+						$closesInt = $closesInt + 12;
+					$openCloseArr['open'] = $opensInt;
+					$openCloseArr['close'] = $closesInt;
+				}
+				break;
+			case 4:
+			case 3:
+			case 2:
+			case 1:
+				if($hoursArr['unitSchedule']['monThursClosed'] == "true"){
+					$openCloseArr['open'] =  0;
+					$openCloseArr['close'] =  0;
+				}
+				else if (!empty($hoursArr['unitSchedule']['monThursOpens']) && !empty($hoursArr['unitSchedule']['monThursCloses'])) {
+					$opens = strtotime($hoursArr['unitSchedule']['monThursOpens']);
+					$closes = strtotime($hoursArr['unitSchedule']['monThursCloses']);
+					$opensString = strftime('%I %p', strtotime(substr($opens, strpos($opens, 'T')+1, 5)));
+					$closesString = strftime('%I %p', strtotime(substr($closes, strpos($closes, 'T')+1, 5)));
+					$opensInt = (int)substr($opensString,0,2);
+					if(substr($opensString, 3,5) == "PM")
+						$opensInt = $opensInt + 12;
+					$closesInt = (int)substr($closesString,0,2);
+					if(substr($closesString, 3,5) == "PM")
+						$closesInt = $closesInt + 12;
+					$openCloseArr['open'] = $opensInt;
+					$openCloseArr['close'] = $closesInt;
+				}
+				break;
+				
+		}
+			
+		return $openCloseArr;
+	}
 }
-class Space{
+
+class Space {
 	public $startDate;
 	public $endDate;
 	public $libraryName;
 	public $hasReservation;
 	public $roomNum;
-	public $integerStartTime;
-	public $integerDuration;
+	public $integerStartTime; // In half hours
+	public $integerDuration; // In half hours
 	
-	public function __construct($res){
-		if(empty($res)){
+	public function __construct($res) {
+		if (empty($res)){
 			$this->hasReservation = false;
 		}
-		else{
+		else {
 			$this->startDate = strtotime($res["startDate"]);
 			$this->endDate = strtotime($res["endDate"]);
 			$this->libraryName = $res["library"];
@@ -138,11 +158,16 @@ class Space{
 			$this->setRoomNum($res["resID"]);
 			$this->setTime($res);
 		}
+		if ($this->startDate == "" && $this->endDate == "") {
+			$this->hasReservation = false;
+		}
 	}
-
+	
+	// Converts to the half hour of the day
 	public function convertDateToInt($date){
 		$beginDay = date('Y-m-d');
-		return ($date - strtotime($beginDay))/1800;
+		$numOfSecondsInHalfHour = 1800;
+		return ($date - strtotime($beginDay))/$numOfSecondsInHalfHour;
 		
 	}
 	
@@ -310,18 +335,26 @@ class Schedule {
 		return $this->libraryName;
 	}
 	
-	public function createSchedule(){
+	public function createSchedule() {
 		$numSpacesInLibrary;
-		if($this->libraryName == "Powell"){
+		if ($this->libraryName == "Powell") {
 			$jsonObject = json_decode(file_get_contents("http://webservices-dev.library.ucla.edu/irma/schedules/studyrooms/now/Powell"), true);
 			$this->numSpacesInLibrary = 6;
 		}
-		elseif($this->libraryName == "YRL"){
+		else if ($this->libraryName == "YRL") {
 			$jsonObject = json_decode(file_get_contents("http://webservices-dev.library.ucla.edu/irma/schedules/studyrooms/now/YRL"), true);
 			$this->numSpacesInLibrary = 35;
 		}
+		else if ($this->libraryName == "YRL GSS") {
+			$jsonObject = json_decode(file_get_contents("http://webservices-dev.library.ucla.edu/irma/schedules/studyrooms/now/YRL"), true);
+			$this->numSpacesInLibrary = 15;
+		}
+		else if ($this->libraryName == "YRL Pods") {
+			$jsonObject = json_decode(file_get_contents("http://webservices-dev.library.ucla.edu/irma/schedules/studyrooms/now/YRL"), true);
+			$this->numSpacesInLibrary = 20;
+		}
 		else{
-			echo("Incorrect Library Name Input. Please use 'Powell' or 'YRL' only");
+			echo("Incorrect Library Name Input. Please use 'Powell' or 'YRL' or 'YRL GSS' or 'YRL Pods' only");
 			break;
 		}
 		//iterate number of half hours from now
@@ -339,35 +372,69 @@ class Schedule {
 			"displayOrder" => "",
 			"roomName" => "",
 			);
-		$openTime = checkOpenCloseTime($this->libraryName);
 		
-		for($j=0; $j < 48; $j++){
-			//iterate number of spaces in the library (35 for YRL, 6 for Powell)
-			for($k=0; $k < $this->numSpacesInLibrary; $k++){
-				
+		// Create empty spaceArr first
+		$numOfHalfHoursInDay = 48;
+		for($j=0; $j < $numOfHalfHoursInDay; $j++){
+			// Iterate number of spaces in the library (35 for YRL, 15 for YRL GSS, 20 for YRL Pods, 6 for Powell)
+			for ($k=0; $k < $this->numSpacesInLibrary; $k++){
 				$this->spaceArr[$k][$j] = new Space($blankArray);
 				$this->spaceArr[$k][$j]->setLibrary = $this->libraryName;
-				if($j < $openTime['open']*2 || $j >= $openTime['close']*2)
-					$this->spaceArr[$k][$j]->hasReservation = true;
 			}
 		}
 		
 		$spacesReserved = $jsonObject["groups"];
 		
-		if(sizeof($spacesReserved) == 12 && empty($spacesReserved[11])){
-			
+		// Don't know what this case is for? Legacy?
+		if (sizeof($spacesReserved) == 12 && empty($spacesReserved[11])){
 			$space = new Space($spacesReserved);
 			for($j=0; $j < $space->integerDuration; $j++){
 				$this->spaceArr[$space->roomNum][$space->integerStartTime + $j] = $space; //Still number of half hours from now
 			}
 		}
-		elseif(sizeof($spacesReserved) != 0 ){
+		else if (sizeof($spacesReserved) != 0 ){
 			$numSpacesReserved = sizeof($spacesReserved);
-			for($i = 0; $i < $numSpacesReserved; $i++){
-				$res = $spacesReserved[$i];
-				$space = new Space($res);
-				for($j=0; $j < $space->integerDuration; $j++){
-					$this->spaceArr[$space->roomNum][$space->integerStartTime + $j] = $space; //Still number of half hours from now
+			$foundSpace = false;
+			for ($i = 0; $i < $numSpacesReserved; $i++) {
+				if ($this->libraryName == "Powell" || $this->libraryName == "YRL") {
+					$res = $spacesReserved[$i];
+					$space = new Space($res);
+					$foundSpace = true;
+				}
+				else if ($this->libraryName == "YRL GSS") { // roomName starts with "G"
+					if (substr($spacesReserved[$i]["roomName"], 0, 1) == "G") {
+						$res = $spacesReserved[$i];
+						$space = new Space($res);
+						$foundSpace = true;
+					}
+				}
+				else if ($this->libraryName == "YRL Pods") { // roomName starts with "media:scape"
+					if (substr($spacesReserved[$i]["roomName"], 0, 11) == "media:scape") {
+						$res = $spacesReserved[$i];
+						$space = new Space($res);
+						$foundSpace = true;
+					}
+				}
+				if ($foundSpace) {
+					for($j=0; $j < $space->integerDuration; $j++){
+						// Stores reservation for every half hour slot that it's using up
+						$this->spaceArr[$space->roomNum][$space->integerStartTime + $j] = $space; //Still number of half hours from now
+					}
+				}
+				$foundSpace = false;
+			}
+		}
+		$this->freeReservations();
+	}
+	
+	// This function is used to clear up any reservations whose dates/times have already passed
+	public function freeReservations() {
+		$numOfHalfHoursInDay = 48;
+		$currentTime = date('Y-m-d H:i');
+		for ($i = 0; $i < $this->numSpacesInLibrary; $i++) {
+			for ($j = 0; $j < $numOfHalfHoursInDay; $j++) {
+				if ($currentTime > date('Y-m-d H:i', $this->spaceArr[$i][$j]->endDate)) {
+					$this->spaceArr[$i][$j]->hasReservation = false;
 				}
 			}
 		}
@@ -377,10 +444,10 @@ class Schedule {
 		date_default_timezone_set('America/Los_Angeles');
 		$numHalfHoursFromNow = 0;
 		$date = new DateTime();
-		for($i=0;$i < 48;$i++){
-			for($j = 0; $j < $this->numSpacesInLibrary;$j++){
-				
-				if(!$this->spaceArr[$j][$i]->hasReservation){
+		$numOfHalfHoursInDay = 48;
+		for ($i = 0; $i < $numOfHalfHoursInDay; $i++) {
+			for($j = 0; $j < $this->numSpacesInLibrary; $j++) {
+				if (!$this->spaceArr[$j][$i]->hasReservation) {
 					$numHalfHoursFromNow = $i;
 					break;
 				}
@@ -393,7 +460,112 @@ class Schedule {
 		$result = $date->format('Y-m-d H:i');
 		return $numHalfHoursFromNow;
 	}
+	
+	// Function to get the next reservation in the $numOfHalfHours exactly
+	public function nextOpenReservationTarget($targetNumOfHalfHours) {
+		date_default_timezone_set('America/Los_Angeles');	
+		$currentTimeInHalfHours = 2 * date('H');
+		if (date('i') >= 30) {
+			$currentTimeInHalfHours += 1;
+		}
+		$numOfHalfHoursInDay = 48;
+		$earliestRoom = -1; // Not actually used but good information to keep on hand in case we need which room is available
+		$earliestHalfHour = 1000;
+		$earliestWeight = 1000; // Used to find which half hour is "earlier" - the closer it is to the beginning of current time in half hours, the earlier
+		for ($i = 0; $i < $this->numSpacesInLibrary; $i++) { // For this space, we want to find an available slot
+			$halfHourCount = 0; // Counts how many consecutive free slots we've found so far
+			$foundAvailableSlot = false; // This is used to tell where we started counting
+			$availableSlotStart = 1000; // Keeps track of when the first free slot is
+			$halfHour = $currentTimeInHalfHours + 1; // Look one ahead, can't reserve for a time that has already passed
+			if ($halfHour > 47) {
+				$halfHour = 0;
+			}
+			for ($count = 0; $count < $numOfHalfHoursInDay; $count++) {
+				if (!$this->spaceArr[$i][$halfHour]->hasReservation) { // If this slot has no reservation
+					if (!$foundAvailableSlot) { // First time we encounter an available slot
+						$currentWeight = $count;
+						$foundAvailableSlot = true;
+						$availableSlotStart = $halfHour;
+						$halfHourCount++;
+						$halfHour++;
+						if ($halfHour > 47) {
+							$halfHour = 0;
+						}
+					}
+					else { // We are finding consecutive free slots
+						$halfHourCount++;
+						$halfHour++;
+						if ($halfHour > 47) {
+							$halfHour = 0;
+						}
+					}
+					if ($halfHourCount == $targetNumOfHalfHours) { // If we found the target number of consecutive free slots
+						if ($currentWeight < $earliestWeight) {
+							$earliestWeight = $currentWeight;
+							$earliestRoom = $i;
+							$earliestHalfHour = $availableSlotStart;
+						}
+						break;
+					}
+				}
+				else { // There is a reservation in the way before we reach the target number of consecutive free slots
+					$halfHour++;
+					if ($halfHour > 47) {
+						$halfHour = 0;
+					}
+					$halfHourCount = 0;
+					$foundAvailableSlot = false;
+				}
+			}
+		}
+		return $earliestHalfHour;
+	}
 
+}
+
+function convertHalfHourToTime($halfHour) {
+	// $halfHour is an integer 0 to 47
+	if ($halfHour == 1000) {
+		return "In 24 hrs";
+	}
+	$meridiem = "am";
+	$minute = "00";
+	$hour = $halfHour / 2;
+	if ($hour == 0 || $hour == 0.5) {
+		$hour = 12;
+	}
+	if ($hour >= 12) {
+		$meridiem = "pm";
+	}
+	if ($hour >= 13) {
+		$hour -= 12;
+	}
+	if ($halfHour % 2 != 0) {
+		$minute = "30";
+		$hour -= 0.5; // There's no explicit integer in PHP
+	}
+	$result = $hour . ":" . $minute . $meridiem;
+	return $result;
+}
+
+// Used to find out which half hour time slots are free in a given space.
+function debugSpaceArr($space) {
+	$schedule = new Schedule($space);
+	$numOfHalfHoursInDay = 48;
+	$html = '';
+	for ($i = 0; $i < $schedule->numSpacesInLibrary; $i++) {
+		for ($j = 0; $j < $numOfHalfHoursInDay; $j++) {
+			if (!$schedule->spaceArr[$i][$j]->hasReservation) {
+				$html .= "Room $i Half Hour $j is free.<br>";
+			}/*
+			else {
+				$html .= "Room $i Half Hour $j is taken by a reservation starting at " . 
+				$schedule->spaceArr[$i][$j]->startDate . " and ending at " . $schedule->spaceArr[$i][$j]->endDate . "<br>";
+			}*/
+		}
+	}
+	
+	return $html;
 }
 				
 ?>
