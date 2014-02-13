@@ -54,7 +54,9 @@ function clicc_homepage_block_contents($delta) {
 			<img src="/sites/default/files/Left-Home.jpg" align="center">
 			<h2>CLICC Lab/Commons</h2>
 			<h6>145 Powell Library Building</h6>
-			<p>The College Library Instructional Computing Commons (CLICC) offers students 100 workstations, instructional software, printers and helpful staff.</p>
+			<p>The College Library Instructional Computing Commons (CLICC) offers students 100 workstations, instructional software, printers and helpful staff. The times below
+			display the earliest time you may reserve a spot for Powell study rooms, YRL study rooms,
+			and YRL study pods. Reserve by clicking on the links below.</p>
 			<div id="home-study-room-availability">
 				<h3>Group Study Spaces</h3>';
 	// Powell and YRL Availability dynamic content: Displays whether or not study rooms in Powell and YRL are available
@@ -81,7 +83,7 @@ function clicc_homepage_block_contents($delta) {
 				$html .= "Half hour time: $currentTimeInHalfHours <br>";
 				$html .= debugSpaceArr("Powell");*/
 	$html .= '
-		<h4><a href="http://www.library.ucla.edu/reservations/powell" target="_blank">Powell Rooms</a></h4>
+		<h4><a href="http://www.library.ucla.edu/reservations/powell" target="_blank">Powell Rooms Availability</a></h4>
 		<div id="powell-availability" style="background-color:#3EAF19;padding:8px">
 			<table>
 			<tr>
@@ -98,7 +100,7 @@ function clicc_homepage_block_contents($delta) {
 			</tr>
 			</table>
 		</div>
-		<h4><a href="http://www.library.ucla.edu/reservations/yrl" target="_blank">YRL Rooms</a></h4>
+		<h4><a href="http://www.library.ucla.edu/reservations/yrl" target="_blank">YRL Rooms Availability</a></h4>
 		<div id="yrl-gss-availability" style="background-color:#3EAF19;padding:8px">
 			<table>
 			<tr>
@@ -115,7 +117,7 @@ function clicc_homepage_block_contents($delta) {
 			</tr>
 			</table>
 		</div>
-		<h4><a href="http://www.library.ucla.edu/reservations/yrl" target="_blank">YRL Pods</a></h4>
+		<h4><a href="http://www.library.ucla.edu/reservations/yrl" target="_blank">YRL Pods Availability</a></h4>
 		<div id="yrl-pods-availability" style="background-color:#3EAF19;padding:8px">
 			<table>
 			<tr>
@@ -164,23 +166,24 @@ function clicc_homepage_block_contents($delta) {
 				$laptop_array = get_laptops_array();
 				for ($i = 0; $i < count($laptop_array); $i++) {
 					if ($laptop_array[$i]['location'] == "College Library") {
-	$html .=	   		'<div id="powell-laptops" style="background-color:#72C3C3;padding:10px;color:#E6E6E6;">
+	$html .=	   		'<div id="powell-laptops" style="background-color:#67B0B0;padding:10px;color:#E6E6E6;">
 						<strong>Powell has <em>' . $laptop_array[$i]['count'] . '</em> available laptops</strong>
 						</div>';		
 					}
 					if ($laptop_array[$i]['location'] == "Research Library") {
-	$html .=	   		'<div id="powell-laptops" style="background-color:#72C3C3;padding:10px;color:#E6E6E6;">
+	$html .=	   		'<div id="powell-laptops" style="background-color:#67B0B0;padding:10px;color:#E6E6E6;">
 						<strong>YRL has <em>' . $laptop_array[$i]['count'] . '</em> available laptops</strong>
 						</div>';	
 					}
 				}
-	// Links: "Check out a Laptop", "Renew a Laptop", and "Print from a Laptop"
+	// Links: "Check out a Laptop", "Known Issues", "Renew a Laptop", and "Print from a Laptop"
 	$html .= '
 			</div>
 			<p>
 			<div style="background-color:#ECF5FD;padding:10px;">
 				<ul>
 					<li><a href="borrow-laptop">Check Out a Laptop</a></li>
+					<li><a href="http://www.library.ucla.edu/clicc/known-issues">Known Issues</a></li>
 					<li><a href="borrow-laptop">Renew a Laptop</a></li>
 					<li><a href="borrow-laptop">Print from a Laptop</a></li>
 				</ul>
@@ -326,7 +329,7 @@ function clicc_homepage_block_contents($delta) {
 			<p>
 			<div style="background-color:#ECF5FD;padding:10px;">
 				<ul>
-					<li><a href="http://shortcut.clicc.ucla.edu">Software Shortcut</a></li>
+					<li><a href="https://sw-shortcut.library.ucla.edu/" target="_blank">Software Shortcut</a></li>
 					<li><a href="hours-and-help">Hours and Help</a></li>
 					<li><a href="instructional-technology">Instructional Technology</a></li>
 				</ul>
