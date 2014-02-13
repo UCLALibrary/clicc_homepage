@@ -54,9 +54,8 @@ function clicc_homepage_block_contents($delta) {
 			<img src="/sites/default/files/Left-Home.jpg" align="center">
 			<h2>CLICC Lab/Commons</h2>
 			<h6>145 Powell Library Building</h6>
-			<p>The College Library Instructional Computing Commons (CLICC) offers students 100 workstations, instructional software, printers and helpful staff. The times below
-			display the earliest time you may reserve a spot for Powell study rooms, YRL study rooms,
-			and YRL study pods. Reserve by clicking on the links below.</p>
+			<p>The College Library Instructional Computing Commons (CLICC) offers students 100 workstations, instructional software, printers and helpful staff.</p>
+			<p>The times below display the earliest time you may reserve a spot for Powell study rooms, YRL study rooms, and YRL study pods. Reserve by clicking on the links below.</p>
 			<div id="home-study-room-availability">
 				<h3>Group Study Spaces</h3>';
 	// Powell and YRL Availability dynamic content: Displays whether or not study rooms in Powell and YRL are available
