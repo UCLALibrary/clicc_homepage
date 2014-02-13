@@ -6,7 +6,7 @@
 function clicc_homepage_block_info() {
 	$blocks['clicc_homepage'] = array(
 		'info' => t('CLICC_Homepage'),
-		'cache' => DRUPAL_CACHE_PER_ROLE,
+		'cache' => DRUPAL_NO_CACHE, // No caching
 		);
 	return $blocks;
 }
@@ -30,7 +30,10 @@ function clicc_homepage_block_view($delta = '') {
  * Implements hook_block_contents().
  */
 function clicc_homepage_block_contents($delta) {
-
+	
+	// Make sure the page isn't cached since info needs to be live
+	$GLOBALS['conf']['cache'] = false;
+	
 	// Include helper functions
 	include 'clicc_homepage_helper_functions.php';
 	$html = '';
